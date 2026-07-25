@@ -13,7 +13,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         // Tambahkan alias ini agar Laravel tahu 'admin' merujuk ke file mana
         $middleware->alias([
-            'admin' => \App\Http\Middleware\AdminMiddleware::class,
+            'role' => \App\Http\Middleware\CheckRole::class,
         ]);
 
         // Kode untuk CSRF tetap dipertahankan

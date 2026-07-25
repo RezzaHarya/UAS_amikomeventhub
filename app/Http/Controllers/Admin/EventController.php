@@ -16,7 +16,7 @@ class EventController extends Controller
         $query = Event::with(['category', 'organizer']);
         
         // Jika bukan superadmin, filter hanya event milik organizer yang sedang login
-        if (Auth::user()->role !== 'superadmin') {
+        if (Auth::user()->role !== 'superadmin' && Auth::user()->role !== 'admin') {
             $query->where('organizer_id', Auth::id());
         }
         

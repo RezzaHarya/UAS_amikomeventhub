@@ -5,14 +5,16 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Category; // 1. Import Model Category
 use App\Models\Partner;  // 2. Import Model Partner
-use App\Models\Event; // 3. Import Model Event
+use App\Models\Event;    // 3. Import Model Event
 
 class HomeController extends Controller
 {
     public function index()
     {
-        // 3. Ambil sekumpulan data Kategori dan Partner
-        $events = Event::latest()->take(3)->get();
+        // Menghapus take(3) agar mengambil SELURUH data event
+        // Tetap menggunakan latest() agar event terbaru muncul paling atas
+        $events = Event::latest()->get();
+        
         $categories = Category::all();
         $partners = Partner::all();
 

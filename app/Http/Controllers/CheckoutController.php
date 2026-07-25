@@ -48,8 +48,8 @@ class CheckoutController extends Controller
         ]);
 
         // 5. Konfigurasi Kredensial Environment Midtrans
-        \Midtrans\Config::$serverKey = env('MIDTRANS_SERVER_KEY');
-        \Midtrans\Config::$isProduction = false; // Mode Sandbox!
+        \Midtrans\Config::$serverKey = config('midtrans.server_key');
+        \Midtrans\Config::$isProduction = config('midtrans.is_production'); // Mode Sandbox!
         \Midtrans\Config::$isSanitized = true;
         \Midtrans\Config::$is3ds = true;
 
@@ -109,8 +109,8 @@ class CheckoutController extends Controller
         $transaction = Transaction::where('order_id', $order_id)->firstOrFail();
         
         // Validasi status pembayaran asli dari Midtrans (Mencegah manipulasi URL)
-        \Midtrans\Config::$serverKey = env('MIDTRANS_SERVER_KEY');
-        \Midtrans\Config::$isProduction = false;
+        \Midtrans\Config::$serverKey = config('midtrans.server_key');
+        \Midtrans\Config::$isProduction = config('midtrans.is_production');
         
         try {
             $midtransStatus = (object) \Midtrans\Transaction::status($order_id);

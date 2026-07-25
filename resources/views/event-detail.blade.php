@@ -9,7 +9,7 @@
         <div class="flex flex-col gap-6">
             
             {{-- Bagian Gambar --}}
-            <img src="{{ asset('storage/' . $event->image) }}" alt="{{ $event->title }}" class="rounded-[2rem] shadow-2xl w-full object-cover aspect-[4/5] object-center">
+            <img src="{{ asset('storage/' . $event->poster_path) }}" alt="{{ $event->title }}" class="rounded-[2rem] shadow-2xl w-full object-cover aspect-[4/5] object-center">
 
             {{-- Badge Midtrans --}}
             <div class="glass p-6 rounded-2xl shadow-xl border border-white bg-white/80 backdrop-blur">

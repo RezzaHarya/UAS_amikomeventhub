@@ -76,7 +76,7 @@
                 
                 {{-- KOTAK GAMBAR --}}
                 <div class="relative w-full aspect-[3/4] overflow-hidden bg-slate-50">
-                    <img src="{{ $event->image ? asset('storage/' . $event->image) : asset('assets/concert.png') }}" 
+                    <img src="{{ $event->poster_path ? asset('storage/' . $event->poster_path) : asset('assets/concert.png') }}" 
                         alt="{{ $event->title }}" 
                         class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                     

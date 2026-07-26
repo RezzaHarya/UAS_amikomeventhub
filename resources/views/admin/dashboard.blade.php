@@ -51,7 +51,7 @@
         </div>
     </div>
 
-    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden mb-10">
         <div class="p-8 border-b flex justify-between items-center">
             <h3 class="font-black text-xl">Transaksi Terakhir</h3>
             <a href="{{ route('admin.transactions.index') }}" class="text-indigo-600 font-bold hover:underline">Lihat
@@ -121,15 +121,20 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const ctx = document.getElementById('revenueChart').getContext('2d');
+            const canvas = document.getElementById('revenueChart');
+            const ctx = canvas.getContext('2d');
 
-            // Ambil JSON dari tag <script type="application/json"> di atas, lalu parse dengan JSON.parse
-            // supaya benar-benar valid JavaScript object, bukan sekadar teks hasil replace Blade.
             const chartDataRaw = document.getElementById('chart-data').textContent;
             const parsedChart = JSON.parse(chartDataRaw);
 
             const chartLabels = parsedChart.labels;
             const chartData = parsedChart.data;
+
+            // Membuat efek gradasi (Gradient) untuk background di bawah garis
+            let gradient = ctx.createLinearGradient(0, 0, 0, canvas.parentElement.clientHeight);
+            gradient.addColorStop(0, 'rgba(79, 70, 229, 0.6)');   // Warna atas (Lebih pekat)
+            gradient.addColorStop(0.8, 'rgba(79, 70, 229, 0.05)'); // Warna tengah (Mulai memudar)
+            gradient.addColorStop(1, 'rgba(79, 70, 229, 0)');     // Warna bawah (Transparan)
 
             new Chart(ctx, {
                 type: 'line',
@@ -139,39 +144,43 @@
                         label: 'Pendapatan Harian (Rp)',
                         data: chartData.length > 0 ? chartData : [0],
                         borderColor: '#4f46e5', // Warna garis Indigo-600 Tailwind
-                        backgroundColor: 'rgba(79, 70, 229, 0.1)',
-                        borderWidth: 3,
+                        backgroundColor: gradient, // Menggunakan efek gradasi
+                        borderWidth: 4, // Garis lebih tebal & tegas
+                        pointRadius: 0, // Sembunyikan titik agar garis terlihat bersih
+                        pointHoverRadius: 8, // Titik baru muncul dan membesar saat di-hover
                         pointBackgroundColor: '#ffffff',
                         pointBorderColor: '#4f46e5',
-                        pointBorderWidth: 2,
-                        pointRadius: 5,
-                        pointHoverRadius: 7,
+                        pointBorderWidth: 3,
                         fill: true,
-                        tension: 0.4 // Membuat garis melengkung (smooth)
+                        tension: 0.4 // Garis melengkung halus
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false, // Tooltip muncul meskipun kursor tidak tepat di atas titik
+                    },
                     plugins: {
-                        legend: {
-                            display: false // Sembunyikan legenda agar lebih bersih
-                        },
+                        legend: { display: false },
                         tooltip: {
-                            backgroundColor: '#1e293b',
-                            padding: 12,
+                            backgroundColor: '#1e293b', // Slate 800
+                            padding: 16,
+                            cornerRadius: 12,
                             titleFont: { size: 14, family: "'Plus Jakarta Sans', sans-serif" },
-                            bodyFont: { size: 14, weight: 'bold', family: "'Plus Jakarta Sans', sans-serif" },
+                            bodyFont: { size: 15, weight: 'bold', family: "'Plus Jakarta Sans', sans-serif" },
+                            displayColors: false, // Sembunyikan kotak warna di dalam tooltip
                             callbacks: {
                                 label: function (context) {
-                                    let label = context.dataset.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
                                     if (context.parsed.y !== null) {
-                                        label += new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(context.parsed.y);
+                                        return new Intl.NumberFormat('id-ID', { 
+                                            style: 'currency', 
+                                            currency: 'IDR',
+                                            maximumFractionDigits: 0 
+                                        }).format(context.parsed.y);
                                     }
-                                    return label;
+                                    return '';
                                 }
                             }
                         }
@@ -180,27 +189,29 @@
                         y: {
                             beginAtZero: true,
                             grid: {
-                                color: '#f1f5f9',
+                                color: '#f1f5f9', // Grid line sangat halus
                                 drawBorder: false,
+                                borderDash: [5, 5] // Grid line putus-putus
                             },
                             ticks: {
                                 font: { family: "'Plus Jakarta Sans', sans-serif" },
                                 color: '#94a3b8',
-                                callback: function (value, index, values) {
+                                padding: 10,
+                                callback: function (value) {
                                     if (value === 0) return '0';
-                                    // Menyingkat angka (Contoh: 1000000 menjadi 1M)
                                     return 'Rp ' + (value / 1000) + 'k';
                                 }
                             }
                         },
                         x: {
                             grid: {
-                                display: false,
+                                display: false, // Hilangkan garis vertikal
                                 drawBorder: false,
                             },
                             ticks: {
                                 font: { family: "'Plus Jakarta Sans', sans-serif" },
-                                color: '#94a3b8'
+                                color: '#94a3b8',
+                                padding: 10
                             }
                         }
                     }
@@ -211,6 +222,6 @@
 
     <!-- Watermark Identitas -->
     <div class="text-center mt-12 mb-4 text-xs font-bold text-slate-400">
-        <p>Developed by: Rezza Alfat (24.12.3314) - Universitas Amikom Yogyakarta</p>
+        <p>Developed by: Team MBG - Universitas Amikom Yogyakarta</p>
     </div>
 @endsection

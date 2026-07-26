@@ -33,7 +33,7 @@ class DashboardController extends Controller
         $ticketsSold = (clone $trxQuery)->whereIn('status', $validStatuses)->count();
         $activeEvents = $eventsQuery->where('date', '>=', now())->count();
         $pendingOrders = (clone $trxQuery)->whereIn('status', ['pending', 'PENDING'])->count();
-        $recentTransactions = (clone $trxQuery)->with('event')->latest()->take(5)->get();
+        $recentTransactions = (clone $trxQuery)->with('event')->latest()->take(3)->get();
 
         // --- LOGIKA DATA GRAFIK (7 HARI TERAKHIR) ---
         $salesData = (clone $trxQuery)->whereIn('status', $validStatuses)

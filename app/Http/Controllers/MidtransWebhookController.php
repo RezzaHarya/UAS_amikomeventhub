@@ -3,7 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Transaction;
+use App\Mail\EventTicketMail;
+use App\Services\FonnteService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class MidtransWebhookController extends Controller
 {
@@ -59,26 +63,22 @@ class MidtransWebhookController extends Controller
             $event->stock = $event->stock - 1;
             $event->save();
             
-            // Mengirimkan email E-Ticket ke pelanggan (kode bawaan modul)
+            // Mengirimkan email E-Ticket ke pelanggan
             try {
-                \Illuminate\Support\Facades\Mail::to($transaction->customer_email)->send(new \App\Mail\EventTicketMail($transaction));
+                Mail::to($transaction->customer_email)->send(new EventTicketMail($transaction));
             } catch (\Exception $e) {
-                \Log::error('Gagal mengirim email E-Ticket: ' . $e->getMessage());
+                Log::error('Gagal mengirim email E-Ticket: ' . $e->getMessage());
             }
 
-            // --- INTEGRASI WHATSAPP: TIKET LUNAS ---
-            $waMessage = "🎉 *PEMBAYARAN BERHASIL* 🎉\n\n";
-            $waMessage .= "Halo *{$transaction->customer_name}*,\n";
-            $waMessage .= "Pembayaran untuk acara *{$event->title}* telah kami terima.\n\n";
-            $waMessage .= "Order ID: *{$transaction->order_id}*\n\n";
-            $waMessage .= "E-Ticket lengkap (QR Code) telah dikirim ke email Anda ({$transaction->customer_email}).\n";
-            $waMessage .= "Sampai jumpa di lokasi acara!";
-
-            \App\Services\FonnteService::sendMessage($transaction->customer_phone, $waMessage);
-            // ----------------------------------------
+            // Mengirimkan E-Ticket via WhatsApp (dengan QR Code sebagai image)
+            try {
+                FonnteService::sendTicket($transaction);
+            } catch (\Exception $e) {
+                Log::error('Gagal mengirim WA E-Ticket: ' . $e->getMessage());
+            }
             
         } else {
-            \Log::warning('Stock habis setelah pembayaran berhasil (Perlu proses refund opsional). Order: ' . $transaction->order_id);
+            Log::warning('Stock habis setelah pembayaran berhasil (Perlu proses refund opsional). Order: ' . $transaction->order_id);
         }
     }
 }

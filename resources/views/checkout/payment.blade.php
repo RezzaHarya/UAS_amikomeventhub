@@ -30,7 +30,7 @@
         </div>
     </main>
 
-    <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}"></script>
+    <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="Mid-client-hh2MoOkL1vjgnT_L"></script>
     <script type="text/javascript">
         document.getElementById('pay-button').onclick = function () {
             // SnapToken acquired from previous step

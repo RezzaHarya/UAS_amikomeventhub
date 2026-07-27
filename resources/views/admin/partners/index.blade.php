@@ -1,7 +1,6 @@
 @extends('layouts.admin')
 
 @section('content')
-
     <div class="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden mt-8">
         <div class="px-8 py-6 bg-slate-50/50 border-b flex justify-between items-center gap-4">
             <form action="{{ route('admin.partners.index') }}" method="GET" class="flex-1 max-w-md">
@@ -36,7 +35,6 @@
                                 <p class="font-black text-slate-800 text-lg">{{ $partner->name }}</p>
                             </td>
                             <td class="px-8 py-6">
-                                <!-- PERUBAHAN DI SINI: Menampilkan Thumbnail Logo dan Link Lokal -->
                                 @if($partner->logo_url)
                                     <div class="flex items-center gap-3">
                                         <div
@@ -90,5 +88,4 @@
             </table>
         </div>
     </div>
-
 @endsection

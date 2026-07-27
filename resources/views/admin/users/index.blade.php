@@ -6,7 +6,6 @@
 
 @section('content')
     <div class="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden">
-        {{-- Header Panel (Search & Add Button) --}}
         <div class="px-8 py-6 bg-slate-50/50 border-b flex justify-between items-center gap-4">
             <form action="{{ route('admin.organizers.index') }}" method="GET" class="flex-1 max-w-md">
                 <input type="text" name="search" placeholder="Cari nama atau email..." value="{{ request('search') }}"
@@ -22,7 +21,6 @@
             </a>
         </div>
 
-        {{-- Tabel Utama --}}
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead class="bg-slate-50 text-slate-400 uppercase text-[10px] font-black tracking-widest">
@@ -53,7 +51,6 @@
                             
                             <td class="px-8 py-6">
                                 <div class="flex gap-2 justify-center">
-                                    {{-- Tombol Edit Identik Kategori --}}
                                     <a href="{{ route('admin.organizers.edit', $user->id) }}"
                                         class="p-2.5 bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-600 hover:text-white transition"
                                         title="Edit">
@@ -64,7 +61,6 @@
                                         </svg>
                                     </a>
 
-                                    {{-- Tombol Hapus Identik Kategori --}}
                                     @if($user->id !== Auth::id())
                                     <form action="{{ route('admin.organizers.destroy', $user->id) }}" method="POST"
                                         onsubmit="return confirm('Yakin ingin menghapus akun {{ $user->name }}?');">
@@ -94,12 +90,5 @@
                 </tbody>
             </table>
         </div>
-
-        {{-- Paginasi jika lebih dari 10 data --}}
-        @if($users->hasPages())
-            <div class="p-6 border-t border-slate-100">
-                {{ $users->links() }}
-            </div>
-        @endif
     </div>
 @endsection

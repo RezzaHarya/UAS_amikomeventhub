@@ -5,13 +5,20 @@ namespace App\Http\Controllers\Admin;
 use App\Models\Partner;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage; // Wajib tambahkan ini untuk kelola file
+use Illuminate\Support\Facades\Storage;
 
 class PartnerController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $partners = Partner::all();
+        $query = Partner::query();
+
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        $partners = $query->latest()->get();
+
         return view('admin.partners.index', compact('partners'));
     }
 
@@ -22,14 +29,13 @@ class PartnerController extends Controller
 
     public function store(Request $request)
     {
-        // Validasi diubah menjadi image
         $request->validate([
             'name' => 'required|string|max:255',
             'logo_url' => 'nullable|image|mimes:jpeg,png,jpg,svg,webp|max:2048',
         ]);
 
         $logoPath = null;
-        // Jika ada file yang diupload, simpan ke storage
+
         if ($request->hasFile('logo_url')) {
             $logoPath = $request->file('logo_url')->store('partners', 'public');
         }
@@ -44,7 +50,6 @@ class PartnerController extends Controller
 
     public function show(string $id)
     {
-        //
     }
 
     public function edit(string $id)
@@ -55,22 +60,18 @@ class PartnerController extends Controller
 
     public function update(Request $request, string $id)
     {
-        // Validasi diubah menjadi image
         $request->validate([
             'name' => 'required|string|max:255',
             'logo_url' => 'nullable|image|mimes:jpeg,png,jpg,svg,webp|max:2048',
         ]);
 
         $partner = Partner::findOrFail($id);
-        $logoPath = $partner->logo_url; // Simpan path lama sebagai default
+        $logoPath = $partner->logo_url;
 
-        // Jika ada file baru yang diupload
         if ($request->hasFile('logo_url')) {
-            // Hapus gambar lama dari storage jika ada
             if ($partner->logo_url && Storage::disk('public')->exists($partner->logo_url)) {
                 Storage::disk('public')->delete($partner->logo_url);
             }
-            // Simpan gambar baru
             $logoPath = $request->file('logo_url')->store('partners', 'public');
         }
 
@@ -86,7 +87,6 @@ class PartnerController extends Controller
     {
         $partner = Partner::findOrFail($id);
 
-        // Hapus gambar dari storage sebelum menghapus data dari database
         if ($partner->logo_url && Storage::disk('public')->exists($partner->logo_url)) {
             Storage::disk('public')->delete($partner->logo_url);
         }

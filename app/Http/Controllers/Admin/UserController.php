@@ -10,20 +10,28 @@ use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
-    // Menampilkan daftar semua organizer atau user
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::latest()->paginate(10);
+        $query = User::query();
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        $users = $query->latest()->get();
+
         return view('admin.users.index', compact('users'));
     }
 
-    // Menampilkan form untuk menambah organizer baru
     public function create()
     {
         return view('admin.users.create');
     }
 
-    // Menyimpan data organizer baru ke database
     public function store(Request $request)
     {
         $request->validate([
@@ -43,17 +51,12 @@ class UserController extends Controller
         return redirect()->route('admin.organizers.index')->with('success', 'Organizer baru berhasil ditambahkan.');
     }
 
-    // Menampilkan form edit data organizer
-    // Menampilkan form edit data organizer
     public function edit($id)
     {
-        // Cari user berdasarkan ID, jika tidak ada akan otomatis error 404
         $user = User::findOrFail($id);
-
         return view('admin.users.edit', compact('user'));
     }
 
-    // Mengupdate data organizer (termasuk opsi reset password jika diisi)
     public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
@@ -62,7 +65,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'role' => 'required|in:superadmin,organizer',
-            'password' => 'nullable|string|min:6', // Password opsional saat edit
+            'password' => 'nullable|string|min:6',
         ]);
 
         $data = [
@@ -71,7 +74,6 @@ class UserController extends Controller
             'role' => $request->role,
         ];
 
-        // Jika kolom password diisi, enkripsi dan update password baru
         if ($request->filled('password')) {
             $data['password'] = Hash::make($request->password);
         }
@@ -81,12 +83,10 @@ class UserController extends Controller
         return redirect()->route('admin.organizers.index')->with('success', 'Data Organizer berhasil diperbarui.');
     }
 
-    // Menghapus akun organizer
     public function destroy($id)
     {
         $user = User::findOrFail($id);
 
-        // Pengaman: Mencegah superadmin menghapus akunnya sendiri yang sedang aktif login
         if ($user->id === Auth::id()) {
             return redirect()->back()->with('error', 'Aksi ditolak! Anda tidak dapat menghapus akun Anda sendiri.');
         }
